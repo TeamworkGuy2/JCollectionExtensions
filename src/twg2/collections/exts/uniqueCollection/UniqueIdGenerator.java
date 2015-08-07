@@ -1,42 +1,40 @@
-package uniqueCollection;
+package twg2.collections.exts.uniqueCollection;
 
-import java.util.Arrays;
 import java.util.function.IntConsumer;
 
-import primitiveCollections.IntListSorted;
+import twg2.collections.primitiveCollections.IntListSorted;
 
-/** Generates and maintains and a unique list of integer IDs
- * using a byte array for fast lookup of valid IDs which incurs
- * a ~1 byte overhead per ID.
+/** Generates and maintains a unique list of integer IDs.<br>
+ * IDs that are {@link #deleteId(int) deleted} may later be reused.<br>
+ * Performance note: creating a large number of IDs and then deleting most of them without
+ * adding any new IDs may cause some memory overhead, since each deleted
+ * ID must be tracked for possible reuse.
  * @author TeamworkGuy2
  * @since 2013-4-2
  */
-public class UniqueIdArray {
-	private static int defaultSize = 16;
-	private static byte USED_VALUE = 1;
-	private static byte EMPTY_VALUE = 0;
-	private int size;
+public class UniqueIdGenerator {
+	private int counter;
 	private int lastId;
 	private int highestId;
-	private byte[] usedIds;
 	private IntListSorted unusedIds;
+	@SuppressWarnings("unused")
+	private volatile int mod;
 
 
-	public UniqueIdArray() {
-		size = 0;
+	public UniqueIdGenerator() {
+		counter = 0;
 		lastId = -1;
 		highestId = -1;
 		unusedIds = new IntListSorted();
-		usedIds = new byte[defaultSize];
+		mod = 0;
 	}
 
 
-	public UniqueIdArray copy() {
-		UniqueIdArray copy = new UniqueIdArray();
-		copy.size = this.size;
+	public UniqueIdGenerator copy() {
+		UniqueIdGenerator copy = new UniqueIdGenerator();
+		copy.counter = this.counter;
 		copy.lastId = this.lastId;
 		copy.highestId = this.highestId;
-		copy.usedIds = Arrays.copyOf(usedIds, usedIds.length);
 		copy.unusedIds = this.unusedIds.copy();
 		return copy;
 	}
@@ -49,29 +47,21 @@ public class UniqueIdArray {
 	 */
 	public int createId() {
 		int newIndex = -1;
-		// If there are no unused IDs, create a new one
-		if(unusedIds.size() == 0) {
-			newIndex = size;
+		if(unusedIds.isEmpty()) {
+			newIndex = counter;
 			lastId = newIndex;
 			if(lastId > highestId) { highestId = lastId; }
-			if(size == Integer.MAX_VALUE) {
-				throw new IllegalStateException(this.getClass().getSimpleName() + " ran out of unique IDs.");
+			if(counter == Integer.MAX_VALUE) {
+				throw new IllegalStateException("maximum number of unique integer IDs exceeded");
 			}
-			size++;
-			if(size >= usedIds.length) {
-				expandList();
-			}
+			counter++;
 		}
-		// Else reuse one of the previously deleted IDs
 		else {
-			newIndex = unusedIds.remove(unusedIds.size()-1);
+			newIndex = unusedIds.remove(unusedIds.size() - 1);
 			lastId = newIndex;
 			if(lastId > highestId) { highestId = lastId; }
 		}
-		if(usedIds[newIndex] != EMPTY_VALUE) {
-			throw new InternalError("Error finding internal unused index");
-		}
-		usedIds[newIndex] = USED_VALUE;
+		mod++;
 		return newIndex;
 	}
 
@@ -82,14 +72,13 @@ public class UniqueIdArray {
 	 */
 	public boolean deleteId(int id) {
 		if(contains(id)) {
-			if(id == size - 1) {
-				usedIds[id] = EMPTY_VALUE;
-				size--;
+			mod++;
+			if(id == counter - 1) {
+				counter--;
 				return true;
 			}
 			else {
 				unusedIds.add(id);
-				usedIds[id] = EMPTY_VALUE;
 				return true;
 			}
 		}
@@ -117,7 +106,7 @@ public class UniqueIdArray {
 	 * @return the number of undeleted IDs from this generator
 	 */
 	public int size() {
-		return size - unusedIds.size();
+		return counter - unusedIds.size();
 	}
 
 
@@ -128,13 +117,19 @@ public class UniqueIdArray {
 	 * @return true if the input ID is one of this generator's ID's, false otherwise.
 	 */
 	public boolean contains(int id) {
-		return (id > -1 && id < size && usedIds[id] == USED_VALUE);
+		return (id > -1 && id < counter && !unusedIds.contains(id));
 	}
 
 
 	public void forEach(IntConsumer task) {
-		for(int i = 0, count = size; i < count; i++) {
-			if(usedIds[i] == USED_VALUE) {
+		int unusedIndex = unusedIds.size() > 0 ? 0 : -1;
+		int nextUnused = unusedIndex > -1 ? unusedIds.get(unusedIndex) : -1;
+		for(int i = 0; i < counter; i++) {
+			if(unusedIndex > -1 && i == nextUnused) {
+				unusedIndex = unusedIndex + 1 >= unusedIds.size() ? -1 : unusedIndex + 1;
+				nextUnused = unusedIndex > -1 ? unusedIds.get(unusedIndex) : -1;
+			}
+			else {
 				task.accept(i);
 			}
 		}
@@ -144,16 +139,6 @@ public class UniqueIdArray {
 	@Override
 	public String toString() {
 		return "Unique IDs " + size() + ", last Id: " + lastId;
-	}
-
-
-	private final void expandList() {
-		byte[] oldIds = this.usedIds;
-		int size = oldIds.length;
-		// 1.5x + 4 the ID array size, +4 instead of +1 to help keep
-		// small lists from constantly resizing
-		this.usedIds = new byte[size + (size >>> 1) + 4];
-		System.arraycopy(oldIds, 0, usedIds, 0, size);
 	}
 
 }

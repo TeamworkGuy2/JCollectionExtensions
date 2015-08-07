@@ -1,12 +1,12 @@
-package test;
+package twg2.collections.exts.test;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import primitiveCollections.IntArrayList;
-import uniqueCollection.UniqueIdArray;
-import uniqueCollection.UniqueIdGenerator;
-import uniqueCollection.UniqueIdMap;
+import twg2.collections.exts.uniqueCollection.UniqueIdArray;
+import twg2.collections.exts.uniqueCollection.UniqueIdGenerator;
+import twg2.collections.exts.uniqueCollection.UniqueIdMap;
+import twg2.collections.primitiveCollections.IntArrayList;
 
 /**
  * @author TeamworkGuy2

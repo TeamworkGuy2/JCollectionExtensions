@@ -1,11 +1,11 @@
-package uniqueCollection;
+package twg2.collections.exts.uniqueCollection;
 
 import java.util.HashMap;
 import java.util.RandomAccess;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import primitiveCollections.IntListSorted;
+import twg2.collections.primitiveCollections.IntListSorted;
 
 /** A list of unique integer ID and object pairs.
  * The {@link #get(int)}, {@link #setValue(int, Object)}, {@link #deleteId(int)},

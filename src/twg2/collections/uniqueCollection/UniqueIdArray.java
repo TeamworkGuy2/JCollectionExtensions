@@ -1,4 +1,4 @@
-package twg2.collections.exts.uniqueCollection;
+package twg2.collections.uniqueCollection;
 
 import java.util.Arrays;
 import java.util.function.IntConsumer;

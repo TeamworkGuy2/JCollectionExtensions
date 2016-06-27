@@ -12,7 +12,7 @@ import twg2.collections.primitiveCollections.IntListSorted;
  * @author TeamworkGuy2
  * @since 2013-4-2
  */
-public class UniqueIdGenerator {
+public class UniqueIdGenerator implements UniqueIds {
 	private int counter;
 	private int lastId;
 	private int highestId;
@@ -45,6 +45,7 @@ public class UniqueIdGenerator {
 	 * @throws IllegalStateException if the ID generator has generated all IDs up to Integer.MAX_VALUE-1,
 	 * no further values can be generated until one of the generated values is deleted.
 	 */
+	@Override
 	public int createId() {
 		int newIndex = -1;
 		if(unusedIds.isEmpty()) {
@@ -70,8 +71,9 @@ public class UniqueIdGenerator {
 	 * @param id the ID to delete
 	 * @return true if the ID was deleted successfully, false otherwise
 	 */
+	@Override
 	public boolean deleteId(int id) {
-		if(contains(id)) {
+		if(containsId(id)) {
 			mod++;
 			if(id == counter - 1) {
 				counter--;
@@ -116,7 +118,8 @@ public class UniqueIdGenerator {
 	 * @param id the ID to check for in this generator's group of unique IDs.
 	 * @return true if the input ID is one of this generator's ID's, false otherwise.
 	 */
-	public boolean contains(int id) {
+	@Override
+	public boolean containsId(int id) {
 		return (id > -1 && id < counter && !unusedIds.contains(id));
 	}
 

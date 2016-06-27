@@ -1,0 +1,13 @@
+{
+	"version" : "0.2.0",
+	"name" : "jcollection-extensions",
+	"description" : "Java collection extensions, currently contains unique integer Id generator, list, and map classes",
+	"homepage" : "https://github.com/TeamworkGuy2/JCollectionExtensions",
+	"license" : "MIT",
+	"main" : "./jar/jcollection_extensions.jar",
+	"dependencies" : {
+		"jarray-util" : "*",
+		"jcollection-util" : "*",
+		"jprimitive-collections" : "*"
+	}
+}

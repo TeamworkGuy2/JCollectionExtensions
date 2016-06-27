@@ -11,7 +11,7 @@ import twg2.collections.primitiveCollections.IntListSorted;
  * @author TeamworkGuy2
  * @since 2013-4-2
  */
-public class UniqueIdArray {
+public class UniqueIdArray implements UniqueIds {
 	private static int defaultSize = 16;
 	private static byte USED_VALUE = 1;
 	private static byte EMPTY_VALUE = 0;
@@ -47,6 +47,7 @@ public class UniqueIdArray {
 	 * @throws IllegalStateException if the ID generator has generated all IDs up to Integer.MAX_VALUE-1,
 	 * no further values can be generated until one of the generated values is deleted.
 	 */
+	@Override
 	public int createId() {
 		int newIndex = -1;
 		// If there are no unused IDs, create a new one
@@ -80,8 +81,9 @@ public class UniqueIdArray {
 	 * @param id the ID to delete
 	 * @return true if the ID was deleted successfully, false otherwise
 	 */
+	@Override
 	public boolean deleteId(int id) {
-		if(contains(id)) {
+		if(containsId(id)) {
 			if(id == size - 1) {
 				usedIds[id] = EMPTY_VALUE;
 				size--;
@@ -127,7 +129,8 @@ public class UniqueIdArray {
 	 * @param id the ID to check for in this generator's group of unique IDs.
 	 * @return true if the input ID is one of this generator's ID's, false otherwise.
 	 */
-	public boolean contains(int id) {
+	@Override
+	public boolean containsId(int id) {
 		return (id > -1 && id < size && usedIds[id] == USED_VALUE);
 	}
 

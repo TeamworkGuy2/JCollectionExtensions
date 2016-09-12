@@ -1,6 +1,6 @@
-DataStructures
+JCollectionExtensions
 ==============
-version: 0.2.0
+version: 0.2.1
 
 Unique ID generators for keeping track of a group of unique IDs and generating new ones.
 
